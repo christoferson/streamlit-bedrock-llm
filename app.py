@@ -4,6 +4,7 @@ import cmn_settings
 import json
 import logging
 import cmn_auth
+#import pyperclip
 
 from botocore.exceptions import ClientError
 
@@ -18,6 +19,9 @@ logging.basicConfig(level=logging.INFO)
 #   st.stop()
 
 ######  AUTH END #####
+
+#def on_copy_click(text):
+#    pyperclip.copy(text)
 
 opt_model_id_list = [
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -39,8 +43,12 @@ st.title("💬 Chatbot")
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+#count = 0
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
+    #if msg["role"] == "assistant":
+    #    st.button("📋", on_click=on_copy_click, args=(msg["content"],), key=count)
+    #    count += 1
 
 if prompt := st.chat_input():
 
@@ -85,7 +93,7 @@ if prompt := st.chat_input():
 
                     if chunk['type'] == 'message_start':
                         opts = f"| temperature={opt_temperature} top_p={opt_top_p} top_k={opt_top_k} max_tokens={opt_max_tokens}"
-                        result_container.write(opts)
+                        #result_container.write(opts)
 
                     elif chunk['type'] == 'message_delta':
                         pass
@@ -103,7 +111,7 @@ if prompt := st.chat_input():
                         latency = invocation_metrics["invocationLatency"]
                         lag = invocation_metrics["firstByteLatency"]
                         stats = f"| token.in={input_token_count} token.out={output_token_count} latency={latency} lag={lag}"
-                        result_container.write(stats)
+                        #result_container.write(stats)
 
                 elif event["internalServerException"]:
                     exception = event["internalServerException"]
@@ -131,6 +139,8 @@ if prompt := st.chat_input():
 
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.session_state.messages.append({"role": "assistant", "content": result_text})
+
+        #st.button("📋", on_click=on_copy_click, args=(result_text,))
         
     except ClientError as err:
         message = err.response["Error"]["Message"]
