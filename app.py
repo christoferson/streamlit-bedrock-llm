@@ -37,10 +37,7 @@ bedrock_runtime = boto3.client('bedrock-runtime', region_name=AWS_REGION)
 st.title("💬 Chatbot")
 
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [
-        #{"role": "user", "content": "Hello there."},
-        #{"role": "assistant", "content": "How can I help you?"}
-    ]
+    st.session_state["messages"] = []
 
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
@@ -63,24 +60,23 @@ if prompt := st.chat_input():
         "top_k": opt_top_k,
         "max_tokens": opt_max_tokens,
         "system": opt_system_msg,
-        "messages": message_history #st.session_state.messages
+        "messages": message_history
     }
     json.dumps(request, indent=3)
 
     try:
-        #bedrock_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
         response = bedrock_runtime.invoke_model_with_response_stream(
             modelId = opt_model_id, #bedrock_model_id, 
             contentType = "application/json", #guardrailIdentifier  guardrailVersion=DRAFT, trace=ENABLED | DISABLED
             accept = "application/json",
             body = json.dumps(request))
 
-        #with st.chat_message("assistant", avatar=setAvatar("assistant")):
         result_text = ""
         with st.chat_message("assistant"):
             result_container = st.container(border=True)
             result_area = st.empty()
             stream = response["body"]
+                
             for event in stream:
                 
                 if event["chunk"]:
@@ -89,23 +85,16 @@ if prompt := st.chat_input():
 
                     if chunk['type'] == 'message_start':
                         opts = f"| temperature={opt_temperature} top_p={opt_top_p} top_k={opt_top_k} max_tokens={opt_max_tokens}"
-                        #result_text += f"{opts}\n\n"
-                        #result_area.write(result_text)
                         result_container.write(opts)
-                        #pass
 
                     elif chunk['type'] == 'message_delta':
-                        #print(f"\nStop reason: {chunk['delta']['stop_reason']}")
-                        #print(f"Stop sequence: {chunk['delta']['stop_sequence']}")
-                        #print(f"Output tokens: {chunk['usage']['output_tokens']}")
                         pass
 
                     elif chunk['type'] == 'content_block_delta':
                         if chunk['delta']['type'] == 'text_delta':
                             text = chunk['delta']['text']
-                            #await msg.stream_token(f"{text}")
                             result_text += f"{text}"
-                            result_area.write(result_text)
+                            result_area.markdown(result_text)
 
                     elif chunk['type'] == 'message_stop':
                         invocation_metrics = chunk['amazon-bedrock-invocationMetrics']
@@ -114,9 +103,6 @@ if prompt := st.chat_input():
                         latency = invocation_metrics["invocationLatency"]
                         lag = invocation_metrics["firstByteLatency"]
                         stats = f"| token.in={input_token_count} token.out={output_token_count} latency={latency} lag={lag}"
-                        #await msg.stream_token(f"\n\n{stats}")
-                        #result_text += f"\n\n{stats}"
-                        #result_area.write(result_text)
                         result_container.write(stats)
 
                 elif event["internalServerException"]:
