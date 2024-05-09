@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.INFO)
 
 ###### AUTH START #####
 
-#if not cmn_auth.check_password():
-#   st.stop()
+if not cmn_auth.check_password():
+   st.stop()
 
 ######  AUTH END #####
 
