@@ -13,6 +13,18 @@ AWS_REGION = cmn_settings.AWS_REGION
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+st.set_page_config(
+    page_title="Chat Application",
+    page_icon=":coffee:", #"🧊",
+    layout="centered", #wide
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://localhost.com/help',
+        'Report a bug': "https://www.localhost.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }
+)
+
 ###### AUTH START #####
 
 if not cmn_auth.check_password():
