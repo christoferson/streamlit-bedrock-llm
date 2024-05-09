@@ -5,6 +5,8 @@ import json
 import logging
 import cmn_auth
 #import pyperclip
+import base64
+from pathlib import Path
 
 from botocore.exceptions import ClientError
 
@@ -24,6 +26,17 @@ st.set_page_config(
         'About': "# This is a header. This is an *extremely* cool app!"
     }
 )
+
+image = "./static/logo.png"
+image_bytes = Path(image).read_bytes()
+image_encoded = base64.b64encode(image_bytes).decode()
+
+# HTML埋め込み
+st.markdown(f"""
+<div style='width:100%;text-align:center;margin-bottom:25px;'>
+<img src="data:image/png;base64,{image_encoded}" height="200" width="300" />
+</div>
+""", unsafe_allow_html=True)
 
 ###### AUTH START #####
 
