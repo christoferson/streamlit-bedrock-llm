@@ -5,8 +5,7 @@ import json
 import logging
 import cmn_auth
 #import pyperclip
-import base64
-from pathlib import Path
+
 
 from botocore.exceptions import ClientError
 
@@ -27,16 +26,6 @@ st.set_page_config(
     }
 )
 
-image = "./static/logo.png"
-image_bytes = Path(image).read_bytes()
-image_encoded = base64.b64encode(image_bytes).decode()
-
-# HTML埋め込み
-st.markdown(f"""
-<div style='width:100%;text-align:center;margin-bottom:25px;'>
-<img src="data:image/png;base64,{image_encoded}" height="200" width="300" />
-</div>
-""", unsafe_allow_html=True)
 
 ###### AUTH START #####
 
@@ -59,7 +48,7 @@ with st.sidebar:
     opt_top_p = st.slider(label="Top P", min_value=0.0, max_value=1.0, value=1.0, step=0.1, key="top_p")
     opt_top_k = st.slider(label="Top K", min_value=0, max_value=500, value=250, step=1, key="top_k")
     opt_max_tokens = st.slider(label="Max Tokens", min_value=0, max_value=4096, value=2048, step=1, key="max_tokens")
-    opt_system_msg = st.text_area(label="System Message", value="You are very powerful assistant. You are multilingual, so adapt to the language of your users.", key="system_msg")
+    #opt_system_msg = st.text_area(label="System Message", value="", key="system_msg")
 
 bedrock_runtime = boto3.client('bedrock-runtime', region_name=AWS_REGION)
 
@@ -92,7 +81,7 @@ if prompt := st.chat_input():
         "top_p": opt_top_p,
         "top_k": opt_top_k,
         "max_tokens": opt_max_tokens,
-        "system": opt_system_msg,
+        #"system": opt_system_msg,
         "messages": message_history
     }
     json.dumps(request, indent=3)

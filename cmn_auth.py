@@ -1,19 +1,30 @@
 import streamlit as st
 import hmac
+import base64
+from pathlib import Path
 
 ###### AUTH START #####
 
 def check_password():
-   """Returns `True` if the user had a correct password."""
+    """Returns `True` if the user had a correct password."""
 
-   def login_form():
-       """Form with widgets to collect user information"""
-       with st.form("Credentials"):
-           st.text_input("Username", key="username")
-           st.text_input("Password", type="password", key="password")
-           st.form_submit_button("Log in", on_click=password_entered)
+    def login_form():
+        """Form with widgets to collect user information"""
 
-   def password_entered():
+        image = "./static/logo.png"
+        image_bytes = Path(image).read_bytes()
+        image_encoded = base64.b64encode(image_bytes).decode()
+
+        st.markdown(f"""<div style='width:100%;text-align:center;margin-bottom:25px;'>
+        <img src="data:image/png;base64,{image_encoded}" height="200" width="300" />
+        </div>""", unsafe_allow_html=True)
+
+        with st.form("Credentials"):
+            st.text_input("Username", key="username")
+            st.text_input("Password", type="password", key="password")
+            st.form_submit_button("Log in", on_click=password_entered)
+
+    def password_entered():
        """Checks whether a password entered by the user is correct."""
        if st.session_state["username"] in st.secrets[
            "passwords"
@@ -27,15 +38,14 @@ def check_password():
        else:
            st.session_state["password_correct"] = False
 
-   # Return True if the username + password is validated.
-   if st.session_state.get("password_correct", False):
-       return True
 
-   # Show inputs for username + password.
-   login_form()
-   if "password_correct" in st.session_state:
-       st.error("😕 User not known or password incorrect")
-   return False
+    # Return True if the username + password is validated.
+    if st.session_state.get("password_correct", False):
+        return True
 
-#if not check_password():
-#   st.stop()
+    # Show inputs for username + password.
+    login_form()
+    if "password_correct" in st.session_state:
+        st.error("😕 User not known or password incorrect")
+    return False
+
